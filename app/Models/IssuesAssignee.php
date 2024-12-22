@@ -4,12 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Issue extends Model
+class IssuesAssignee extends Model
 {
     protected $fillable = [
-        'title',
-        'content',
+        'issues_id',
         'user_no',
+        'created_at',
+        'updated_at',
     ];
 
 }

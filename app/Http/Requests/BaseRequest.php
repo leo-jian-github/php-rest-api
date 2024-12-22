@@ -24,11 +24,6 @@ abstract class  BaseRequest extends FormRequest
      */
     public function rules(): array
     {
-        // $rules = $this->childRules();
-        // $rules[] = ['token' => 'required|string|min:32|max:32',];
-        // // array_push($rules, ['token' => 'required|string|min:32|max:32',]);
-        // return $rules;
-
         return array_merge($this->childRules(), [
             'token' => 'required|string|min:32|max:32',
         ]);

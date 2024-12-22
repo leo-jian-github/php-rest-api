@@ -31,9 +31,9 @@ return new class extends Migration {
             $table->string(column: 'token', length: 32)->comment(comment: 'API 交互令牌');
             $table->bigInteger(column: 'user_no')->comment(comment: '用戶編號');
             $table->timestamps();
-            $table->primary(['token', 'user_no']);
+            $table->primary(columns: ['token', 'user_no']);
 
-            $table->foreign('user_no')->references('no')->on('users');
+            $table->foreign(columns: 'user_no')->references(columns: 'no')->on(table: 'users');
         });
     }
 

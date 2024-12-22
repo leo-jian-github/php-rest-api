@@ -14,7 +14,30 @@ return new class extends Migration
         Schema::create('issues', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
+            $table->string(column: 'title', length: 100)->comment(comment: '標題');
+            $table->text(column: 'content')->comment(comment: '內容');
+            $table->bigInteger(column: 'user_no')->comment(comment: '作者');
 
+            $table->foreign(columns: 'user_no')->references(columns: 'no')->on(table: 'users');
+        });
+
+        Schema::create('issues_assignees', function (Blueprint $table) {
+            $table->timestamps();
+            $table->foreignId(column: 'issues_id')->comment(comment: '議題編號')->constrained(table: 'issues');
+            $table->bigInteger(column: 'user_no')->comment(comment: '被分派者');
+            $table->primary(columns: ['issues_id', 'user_no']);
+
+            $table->foreign(columns: 'user_no')->references(columns: 'no')->on(table: 'users');
+        });
+
+        Schema::create('issues_comments', function (Blueprint $table) {
+            $table->id();
+            $table->timestamps();
+            $table->foreignId(column: 'issues_id')->comment(comment: '議題編號')->constrained(table: 'issues');
+            $table->bigInteger(column: 'user_no')->comment(comment: '評論者');
+            $table->text(column: 'content')->comment(comment: '內容');
+
+            $table->foreign(columns: 'user_no')->references(columns: 'no')->on(table: 'users');
         });
     }
 
@@ -24,5 +47,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('issues');
+        Schema::dropIfExists('issues_assignee');
+        Schema::dropIfExists('issues_comment');
     }
 };

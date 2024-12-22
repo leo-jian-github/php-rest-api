@@ -31,8 +31,4 @@ class User extends Model
         'password',
     ];
 
-    public function token()
-    {
-        return $this->belnogTo(UserToken::class);
-    }
 }

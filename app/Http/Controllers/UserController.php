@@ -54,7 +54,7 @@ class UserController extends Controller
             });
 
             // 新增快取資料
-            Cache::put("user_token_$token", $userNo, 120);
+            Cache::put("user_token_$token", $userNo, 600);
 
             return response()->json(data: ['message' => "SUCCESS", 'token' => $token], status: Response::HTTP_OK);
         } catch (\Exception $e) {
@@ -127,7 +127,7 @@ class UserController extends Controller
             }
 
             // 刷新快取
-            Cache::put("user_token_$token", $userNo, 120);
+            Cache::put("user_token_$token", $userNo, 600);
 
             // 查詢用戶資訊
             $user = User::find($userNo);
