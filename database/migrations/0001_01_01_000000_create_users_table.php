@@ -11,10 +11,10 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->bigIncrements(column: 'no');
-            $table->string(column: 'account', length: 20)->unique();
-            $table->string(column: 'password', length: 32);
-            $table->string(column: 'name', length: 100);
+            $table->bigInteger(column: 'no')->autoIncrement()->primary()->comment(comment: '用戶編號');
+            $table->string(column: 'account', length: 20)->unique()->comment(comment: '帳號');
+            $table->string(column: 'password', length: 32)->comment(comment: '密碼(32位元 MD5)');
+            $table->string(column: 'name', length: 100)->comment(comment: '暱稱');
             $table->timestamps();
         });
 
@@ -26,6 +26,15 @@ return new class extends Migration {
             $table->longText('payload');
             $table->integer('last_activity')->index();
         });
+
+        Schema::create('user_tokens', function (Blueprint $table) {
+            $table->string(column: 'token', length: 32)->comment(comment: 'API 交互令牌');
+            $table->bigInteger(column: 'user_no')->comment(comment: '用戶編號');
+            $table->timestamps();
+            $table->primary(['token', 'user_no']);
+
+            $table->foreign('user_no')->references('no')->on('users');
+        });
     }
 
     /**
@@ -35,5 +44,6 @@ return new class extends Migration {
     {
         Schema::dropIfExists('users');
         Schema::dropIfExists('sessions');
+        Schema::dropIfExists('user_token');
     }
 };

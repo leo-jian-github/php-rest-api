@@ -2,12 +2,12 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Http\Response;
+use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class UserRequest extends FormRequest
+class UserRegisterRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -31,6 +31,12 @@ class UserRequest extends FormRequest
         ];
     }
 
+    /**
+     * 參數驗證返回錯誤
+     * @param \Illuminate\Contracts\Validation\Validator $validator
+     * @throws \Illuminate\Http\Exceptions\HttpResponseException
+     * @return never
+     */
     public function failedValidation(Validator $validator)
     {
         // 參數驗證失敗回傳錯誤資訊

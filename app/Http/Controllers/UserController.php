@@ -3,14 +3,23 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use App\Http\Requests\UserRequest;
-use Illuminate\Validation\ValidationException;
+use Ramsey\Uuid\Uuid;
+use App\Models\UserToken;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use App\Http\Requests\UserLoginRequest;
+use App\Http\Requests\UserRegisterRequest;
 use Symfony\Component\HttpFoundation\Response;
 
 class UserController extends Controller
 {
 
-    public function register(UserRequest $request)
+    /**
+     * 用戶註冊
+     * @param \App\Http\Requests\UserRegisterRequest $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
+    public function register(UserRegisterRequest $request)
     {
         try {
             // 取得請求參數
@@ -22,18 +31,65 @@ class UserController extends Controller
                 return response()->json(data: ['message' => "Account is exists"], status: Response::HTTP_CONFLICT);
             }
 
-            // 建立用戶
-            User::create(attributes: [
-                'account' => $req['account'],
-                'password' => $req['password'],
-                'name' => $req['name'],
-            ]);
+            $token = Uuid::uuid4()->toString();
+            $token = str_replace('-', '', $token);
 
-            // TODO 用戶登入
+            DB::transaction(callback: function () use ($req, $token): void {
+                // 建立用戶
+                $user = User::create(attributes: [
+                    'account' => $req['account'],
+                    'password' => $req['password'],
+                    'name' => $req['name'],
+                ]);
 
-            return response()->json(data: ['message' => "SUCCESS"], status: Response::HTTP_OK);
-        } catch (ValidationException $e) {
-            return response()->json(data: ['message' => $e->getMessage()], status: Response::HTTP_BAD_REQUEST);
+                // 建立 Token
+                UserToken::create(attributes: [
+                    'token' => $token,
+                    'user_no' => $user->no,
+                ]);
+            });
+
+            return response()->json(data: ['message' => "SUCCESS", 'token' => $token], status: Response::HTTP_OK);
+        } catch (\Exception $e) {
+            return response()->json(data: ['message' => $e->getMessage()], status: Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * 用戶登入
+     * @param \App\Http\Requests\UserLoginRequest $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
+    public function login(UserLoginRequest $request)
+    {
+        try {
+            // 取得請求參數
+            $req = $request->validated();
+
+            // 查詢用戶資訊
+            $user = User::where('account', $req['account'])->first();
+
+            log::debug($user);
+
+            if ($user == null || $user->password != $req['password']) {
+                return response()->json(data: ['message' => 'Wrong account or password'], status: Response::HTTP_UNAUTHORIZED);
+            }
+
+            $token = Uuid::uuid4()->toString();
+            $token = str_replace('-', '', $token);
+
+            DB::transaction(callback: function () use ($user, $token): void {
+                // 移除舊的 token
+                UserToken::where('user_no', $user->no)->delete();
+
+                // 建立 Token
+                UserToken::create(attributes: [
+                    'token' => $token,
+                    'user_no' => $user->no,
+                ]);
+            });
+
+            return response()->json(data: ['message' => "SUCCESS", 'token' => $token], status: Response::HTTP_OK);
         } catch (\Exception $e) {
             return response()->json(data: ['message' => $e->getMessage()], status: Response::HTTP_INTERNAL_SERVER_ERROR);
         }
