@@ -7,7 +7,9 @@ use Ramsey\Uuid\Uuid;
 use App\Models\UserToken;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
 use App\Http\Requests\UserLoginRequest;
+use App\Http\Requests\UserUpNameRequest;
 use App\Http\Requests\UserRegisterRequest;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -34,6 +36,7 @@ class UserController extends Controller
             $token = Uuid::uuid4()->toString();
             $token = str_replace('-', '', $token);
 
+            $userNo = null;
             DB::transaction(callback: function () use ($req, $token): void {
                 // 建立用戶
                 $user = User::create(attributes: [
@@ -42,12 +45,16 @@ class UserController extends Controller
                     'name' => $req['name'],
                 ]);
 
+                $userNo  = $user->no;
                 // 建立 Token
                 UserToken::create(attributes: [
                     'token' => $token,
-                    'user_no' => $user->no,
+                    'user_no' => $userNo,
                 ]);
             });
+
+            // 新增快取資料
+            Cache::put("user_token_$token", $userNo, 120);
 
             return response()->json(data: ['message' => "SUCCESS", 'token' => $token], status: Response::HTTP_OK);
         } catch (\Exception $e) {
@@ -71,7 +78,7 @@ class UserController extends Controller
 
             log::debug($user);
 
-            if ($user == null || $user->password != $req['password']) {
+            if (empty($user) || $user->password != $req['password']) {
                 return response()->json(data: ['message' => 'Wrong account or password'], status: Response::HTTP_UNAUTHORIZED);
             }
 
@@ -89,7 +96,52 @@ class UserController extends Controller
                 ]);
             });
 
+            // 新增快取資料
+            Cache::put("user_token_$token", $user->no, 120);
+
             return response()->json(data: ['message' => "SUCCESS", 'token' => $token], status: Response::HTTP_OK);
+        } catch (\Exception $e) {
+            return response()->json(data: ['message' => $e->getMessage()], status: Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * 更新暱稱
+     * @param \App\Http\Requests\UserUpNameRequest $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
+    public function upname(UserUpNameRequest $request)
+    {
+        try {
+            // 取得請求參數
+            $req = $request->validated();
+            $token = $req['token'];
+
+            // 取得快取資料
+            $userNo = Cache::get("user_token_$token");
+
+            log::debug("userno: $userNo");
+
+            if (empty($userNo)) {
+                return response()->json(data: ['message' => 'Token expired'], status: Response::HTTP_FORBIDDEN);
+            }
+
+            // 刷新快取
+            Cache::put("user_token_$token", $userNo, 120);
+
+            // 查詢用戶資訊
+            $user = User::find($userNo);
+
+            log::debug("user: $user");
+
+            if (empty($user)) {
+                return response()->json(data: ['message' => 'Can not find user info'], status: Response::HTTP_INTERNAL_SERVER_ERROR);
+            }
+
+            $user->name = $req['name'];
+            $user->save();
+
+            return response()->json(data: ['message' => "SUCCESS"], status: Response::HTTP_OK);
         } catch (\Exception $e) {
             return response()->json(data: ['message' => $e->getMessage()], status: Response::HTTP_INTERNAL_SERVER_ERROR);
         }
