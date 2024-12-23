@@ -22,6 +22,8 @@
 - **POST**      api/issue/comment/create : 建立
 - **POST**      api/issue/comment/list : 查詢(分頁)
 
+## API Swagger
+- http://127.0.0.1:8000/swagger
 
 ## 相關指令
 - php artisan serve : 啟動服務

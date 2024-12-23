@@ -1,0 +1,228 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+      "title": "PHP API",
+      "version": "1.0.0"
+    },
+    "servers": [
+      {
+        "url": "http://127.0.0.1:8000"
+      }
+    ],
+    "paths": {
+      "/api/user/register": {
+        "post": {
+          "tags": [
+            "User"
+          ],
+          "summary": "User Register",
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "account": "user001",
+                    "password": "string",
+                    "name": "user001"
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Successful response",
+              "content": {
+                "application/json": {}
+              }
+            }
+          }
+        }
+      },
+      "/api/user/name": {
+        "put": {
+          "tags": [
+            "User"
+          ],
+          "summary": "Update Name",
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "name": "name",
+                    "token": "string"
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Successful response",
+              "content": {
+                "application/json": {}
+              }
+            }
+          }
+        }
+      },
+      "/api/user/login": {
+        "post": {
+          "tags": [
+            "User"
+          ],
+          "summary": "User login",
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "account": "user001",
+                    "password": "string"
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Successful response",
+              "content": {
+                "application/json": {}
+              }
+            }
+          }
+        }
+      },
+      "/api/api/issue/create": {
+        "post": {
+          "tags": [
+            "Issue"
+          ],
+          "summary": "Issue Create",
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "title": "Issue title",
+                    "content": "content",
+                    "token": "string",
+                    "assignee": [
+                      1,
+                      2,
+                      3
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Successful response",
+              "content": {
+                "application/json": {}
+              }
+            }
+          }
+        }
+      },
+      "/api/issue/list": {
+        "post": {
+          "tags": [
+            "Issue"
+          ],
+          "summary": "Issue List",
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "page": 1,
+                    "page_size": 10,
+                    "token": "string"
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Successful response",
+              "content": {
+                "application/json": {}
+              }
+            }
+          }
+        }
+      },
+      "/api/issue/comment/list": {
+        "post": {
+          "tags": [
+            "Issue"
+          ],
+          "summary": "Issue Comment List",
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "issues_id": 1,
+                    "page": 1,
+                    "page_size": 10,
+                    "token": "string"
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Successful response",
+              "content": {
+                "application/json": {}
+              }
+            }
+          }
+        }
+      },
+      "/api/issue/comment/create": {
+        "post": {
+          "tags": [
+            "Issue"
+          ],
+          "summary": "Issue Comment Create",
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "issues_id": 1,
+                    "content": "content",
+                    "token": "string"
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Successful response",
+              "content": {
+                "application/json": {}
+              }
+            }
+          }
+        }
+      }
+    }
+  }

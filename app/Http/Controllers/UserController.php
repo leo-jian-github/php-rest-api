@@ -146,13 +146,4 @@ class UserController extends Controller
             return response()->json(data: ['message' => $e->getMessage()], status: Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
-
-    /**
-     * 取得測試用 token (X-CSRF-TOKEN)
-     * @return string
-     */
-    public function token()
-    {
-        return csrf_token();
-    }
 }

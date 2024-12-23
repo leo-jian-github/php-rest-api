@@ -7,7 +7,6 @@ use App\Http\Controllers\IssueController;
 
 
 Route::group(['prefix' => '/user'], function () {
-    Route::get('/token', [UserController::class, 'token']);
     Route::post('/register', [UserController::class, 'register']);
     Route::post('/login', [UserController::class, 'login']);
     Route::put('/name', [UserController::class, 'upname']);
