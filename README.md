@@ -24,6 +24,6 @@
 
 
 ## 相關指令
-php artisan serve : 啟動服務
-php artisan migrate : 更新 migrations 至 DB
-php artisan route:list : 列出 API 接口列表
+- php artisan serve : 啟動服務
+- php artisan migrate : 更新 migrations 至 DB
+- php artisan route:list : 列出 API 接口列表
