@@ -10,17 +10,17 @@
 ## API 接口
 
 ### User
-**POST**      user/register : 註冊
-**POST**      user/login : 登入
-**PUT**       user/name : 修改用戶資訊
+- **POST**      user/register : 註冊
+- **POST**      user/login : 登入
+- **PUT**       user/name : 修改用戶資訊
 
 ### Issue
-**POST**      issue/create : 建立
-**POST**      issue/list : 查詢(分頁)
+- **POST**      issue/create : 建立
+- **POST**      issue/list : 查詢(分頁)
 
 ### Issue comment
-**POST**      issue/comment/create : 建立
-**POST**      issue/comment/list : 查詢(分頁)
+- **POST**      issue/comment/create : 建立
+- **POST**      issue/comment/list : 查詢(分頁)
 
 
 ## 相關指令
