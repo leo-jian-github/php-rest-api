@@ -13,4 +13,14 @@ class IssuesComment extends Model
         'created_at',
         'updated_at',
     ];
+
+    public function issues()
+    {
+        return $this->belongsTo(related: Issue::class, foreignKey: 'issues_id', ownerKey: 'id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(related: User::class, foreignKey: 'user_no', ownerKey: 'no');
+    }
 }

@@ -14,3 +14,7 @@ Route::group(['prefix' => '/issue'], function () {
     Route::post('/create', [IssueController::class, 'create']);
     Route::post('/list', [IssueController::class, 'list']);
 });
+Route::group(['prefix' => '/issue/comment'], function () {
+    Route::post('/create', [IssueController::class, 'commentCreate']);
+    Route::post('/list', [IssueController::class, 'commentList']);
+});

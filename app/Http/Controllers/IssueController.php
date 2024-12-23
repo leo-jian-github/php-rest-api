@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Issue;
+use App\Models\IssuesComment;
 use App\Models\IssuesAssignee;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -13,6 +14,8 @@ use App\Http\Requests\IssueCreateRequest;
 use App\Http\Responses\IssueListResponses;
 use App\Http\Responses\IssueListDataResponses;
 use Symfony\Component\HttpFoundation\Response;
+use App\Http\Requests\IssuesCommentListRequest;
+use App\Http\Requests\IssuesCommentCreateRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
 class IssueController extends Controller
@@ -112,6 +115,70 @@ class IssueController extends Controller
                     ]);
                 }
             });
+
+            return response()->json(data: ['message' => "SUCCESS"], status: Response::HTTP_OK);
+        } catch (HttpResponseException $e) {
+            throw $e;
+        } catch (\Exception $e) {
+            return response()->json(data: ['message' => $e->getMessage()], status: Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * 查詢議題評論列表
+     * @param \App\Http\Requests\IssuesCommentListRequest $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
+    public function commentList(IssuesCommentListRequest $request)
+    {
+        try {
+            // 取得請求參數
+            $req = $request->validated();
+            $token = $req['token'];
+
+            // 驗證用戶
+            TokenAuth(token: $token);
+
+            $result =  IssuesComment::with('user')->where("issues_id", $req['issues_id'])->paginate(perPage: $req['page_size'], page: $req['page']);
+            if ($result->total() <= 0) {
+                return response()->json(data: ['message' => "No data found"], status: Response::HTTP_NOT_FOUND);
+            }
+
+            return response()->json(data: ['datas' => $result->items(), 'total' => $result->total()], status: Response::HTTP_OK);
+        } catch (HttpResponseException $e) {
+            throw $e;
+        } catch (\Exception $e) {
+            return response()->json(data: ['message' => $e->getMessage()], status: Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * 建立議題評論
+     * @param \App\Http\Requests\IssuesCommentCreateRequest $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
+    public function commentCreate(IssuesCommentCreateRequest $request)
+    {
+        try {
+            // 取得請求參數
+            $req = $request->validated();
+            $token = $req['token'];
+
+            // 驗證用戶
+            $user = TokenAuth(token: $token);
+
+            // 驗證資料
+            $exists = Issue::where('id', $req['issues_id'])->exists();
+            if (!$exists) {
+                return response()->json(data: ['message' => "No data found"], status: Response::HTTP_NOT_FOUND);
+            }
+
+            // 新增議題評論
+            IssuesComment::create(attributes: [
+                'issues_id' => $req['issues_id'],
+                'user_no' => $user->no,
+                'content' => $req['content'],
+            ]);
 
             return response()->json(data: ['message' => "SUCCESS"], status: Response::HTTP_OK);
         } catch (HttpResponseException $e) {
