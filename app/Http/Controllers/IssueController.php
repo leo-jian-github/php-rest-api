@@ -4,17 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Issue;
-use Ramsey\Uuid\Uuid;
-use App\Models\UserToken;
-use Illuminate\Http\Request;
 use App\Models\IssuesAssignee;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Cache;
 use App\Http\Requests\IssueListRequest;
 use function App\Http\Helpers\TokenAuth;
 use App\Http\Requests\IssueCreateRequest;
 use App\Http\Responses\IssueListResponses;
+use App\Http\Responses\IssueListDataResponses;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
@@ -35,9 +32,34 @@ class IssueController extends Controller
             // 驗證用戶
             TokenAuth(token: $token);
 
-            $result = Issue::with(relations: 'user')->orderBy('id', 'desc')->paginate(perPage: $req['page_size'], page: $req['page']);
-            $value = new IssueListResponses(value: $result);
-            return response()->json(data: $value, status: Response::HTTP_OK);
+            $result = Issue::with(relations: 'user')->with('assignees')->orderBy('id', 'desc')->paginate(perPage: $req['page_size'], page: $req['page']);
+            if ($result->total() <= 0) {
+                return response()->json(data: ['message' => "No data found"], status: Response::HTTP_NOT_FOUND);
+            }
+
+            // 回傳數據
+            $datas = [];
+            foreach ($result->items() as $issue) {
+                $assignee = [];
+                foreach ($issue->assignees as $assignees) {
+                    $user = User::where('no', $assignees['user_no'])->first();
+                    if (!empty($user)) {
+                        array_push($assignee, $user->account);
+                    }
+                }
+                $data = new IssueListDataResponses(
+                    id: $issue['id'],
+                    title: $issue['title'],
+                    content: $issue['content'],
+                    createdAt: $issue['created_at'],
+                    updatedAt: $issue['updated_at'],
+                    author: $issue['user']['account'],
+                    assignee: $assignee
+                );
+                array_push($datas, $data);
+            }
+
+            return response()->json(data: new IssueListResponses(datas: $datas, total: $result->total()), status: Response::HTTP_OK);
         } catch (HttpResponseException $e) {
             throw $e;
         } catch (\Exception $e) {
