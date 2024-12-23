@@ -12,4 +12,5 @@ Route::group(['prefix' => '/user'], function () {
 });
 Route::group(['prefix' => '/issue'], function () {
     Route::post('/create', [IssueController::class, 'create']);
+    Route::post('/list', [IssueController::class, 'list']);
 });

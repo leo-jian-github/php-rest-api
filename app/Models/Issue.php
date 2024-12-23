@@ -12,4 +12,13 @@ class Issue extends Model
         'user_no',
     ];
 
+    public function assignees()
+    {
+        return $this->hasMany(related: IssuesAssignee::class, foreignKey: 'issues_id', localKey: 'id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(related: User::class, foreignKey: 'user_no', ownerKey: 'no');
+    }
 }

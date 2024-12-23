@@ -23,20 +23,23 @@ return new class extends Migration
 
         Schema::create('issues_assignees', function (Blueprint $table) {
             $table->timestamps();
-            $table->foreignId(column: 'issues_id')->comment(comment: '議題編號')->constrained(table: 'issues');
+            // $table->foreignId(column: 'issues_id')->comment(comment: '議題編號')->constrained(table: 'issues');
+            $table->unsignedBigInteger(column: 'issues_id')->comment(comment: '議題編號');
             $table->bigInteger(column: 'user_no')->comment(comment: '被分派者');
             $table->primary(columns: ['issues_id', 'user_no']);
 
+            $table->foreign(columns: 'issues_id')->references(columns: 'id')->on(table: 'issues');
             $table->foreign(columns: 'user_no')->references(columns: 'no')->on(table: 'users');
         });
 
         Schema::create('issues_comments', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
-            $table->foreignId(column: 'issues_id')->comment(comment: '議題編號')->constrained(table: 'issues');
+            $table->unsignedBigInteger(column: 'issues_id')->comment(comment: '議題編號');
             $table->bigInteger(column: 'user_no')->comment(comment: '評論者');
             $table->text(column: 'content')->comment(comment: '內容');
 
+            $table->foreign(columns: 'issues_id')->references(columns: 'id')->on(table: 'issues');
             $table->foreign(columns: 'user_no')->references(columns: 'no')->on(table: 'users');
         });
     }

@@ -11,19 +11,38 @@ use App\Models\IssuesAssignee;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
+use App\Http\Requests\IssueListRequest;
 use function App\Http\Helpers\TokenAuth;
 use App\Http\Requests\IssueCreateRequest;
+use App\Http\Responses\IssueListResponses;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
 class IssueController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * 查詢議題列表
+     * @param \App\Http\Requests\IssueListRequest $request
+     * @return mixed|\Illuminate\Http\JsonResponse
      */
-    public function index()
+    public function list(IssueListRequest $request)
     {
-        //
+        try {
+            // 取得請求參數
+            $req = $request->validated();
+            $token = $req['token'];
+
+            // 驗證用戶
+            TokenAuth(token: $token);
+
+            $result = Issue::with(relations: 'user')->orderBy('id', 'desc')->paginate(perPage: $req['page_size'], page: $req['page']);
+            $value = new IssueListResponses(value: $result);
+            return response()->json(data: $value, status: Response::HTTP_OK);
+        } catch (HttpResponseException $e) {
+            throw $e;
+        } catch (\Exception $e) {
+            return response()->json(data: ['message' => $e->getMessage()], status: Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**
@@ -78,45 +97,5 @@ class IssueController extends Controller
         } catch (\Exception $e) {
             return response()->json(data: ['message' => $e->getMessage()], status: Response::HTTP_INTERNAL_SERVER_ERROR);
         }
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Issue $issue)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Issue $issue)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Issue $issue)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Issue $issue)
-    {
-        //
     }
 }
