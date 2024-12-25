@@ -2,10 +2,9 @@
 
 namespace App\Http\Requests;
 
-use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
-use Illuminate\Http\Exceptions\HttpResponseException;
+use App\Exceptions\FormRequestValidationException;
 
 abstract class  BaseRequest extends FormRequest
 {
@@ -38,8 +37,7 @@ abstract class  BaseRequest extends FormRequest
     public function failedValidation(Validator $validator)
     {
         // 參數驗證失敗回傳錯誤資訊
-        $response = response()->json(data: ['message' => $validator->getMessageBag()->first()], status: Response::HTTP_BAD_REQUEST);
-        throw new HttpResponseException($response);
+        throw new FormRequestValidationException($validator->getMessageBag()->first());
     }
 
     /**
